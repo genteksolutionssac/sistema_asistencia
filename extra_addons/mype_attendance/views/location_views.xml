@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Configuración de la sede/geocerca en la Empresa
+    ========================================== -->
+
+    <record id="view_res_company_attendance_form" model="ir.ui.view">
+        <field name="name">res.company.form.attendance</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='mype_hr']" position="after">
+                <page string="Marcación móvil" name="mype_attendance">
+                    <group string="Horario General de la Empresa">
+                        <field name="default_shift_id"/>
+                        <field name="enable_attendance_reminders" widget="boolean_toggle"/>
+                    </group>
+                    <group string="Ubicación por defecto (sede principal)">
+                        <group>
+                            <field name="attendance_latitude"/>
+                            <field name="attendance_longitude"/>
+                        </group>
+                        <group>
+                            <field name="allowed_radius_meters"/>
+                        </group>
+                    </group>
+                    <p class="text-muted">
+                        Estas coordenadas y radio definen el punto de trabajo donde los empleados
+                        de esta compañía pueden marcar presencialmente desde la app.
+                        Los empleados con la opción "Usar ubicación de compañía" activa usarán
+                        estos datos automáticamente.
+                    </p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Punto de marcación y Horario por Empleado
+     ========================================== -->
+
+    <record id="view_hr_employee_attendance_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.attendance</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='work_information']" position="after">
+                <page string="Asistencia móvil y Horario" name="mype_attendance">
+                    <group string="Identificación del Colaborador">
+                        <field name="employee_code"/>
+                    </group>
+                    <group string="Horario / Turno de Asistencia">
+                        <field name="use_company_shift" widget="boolean_toggle"/>
+                        <field name="shift_id" invisible="use_company_shift" required="not use_company_shift"/>
+                        <field name="effective_shift_id" readonly="1"/>
+                    </group>
+                    <group string="Punto de trabajo (Geocerca)">
+                        <field name="use_company_location" widget="boolean_toggle"/>
+                    </group>
+                    <group string="Ubicación específica" invisible="use_company_location">
+                        <group>
+                            <field name="attendance_latitude"/>
+                            <field name="attendance_longitude"/>
+                        </group>
+                        <group>
+                            <field name="attendance_location_url" widget="url" text="Ver en Google Maps"/>
+                        </group>
+                    </group>
+                    <p class="text-muted" invisible="not use_company_location">
+                        Usa la ubicación de la compañía. Si este colaborador debe marcar en otra
+                        sede o punto de trabajo, desactive la opción "Usar ubicación de compañía"
+                        e ingrese sus coordenadas.
+                    </p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

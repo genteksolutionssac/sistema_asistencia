@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Configuración de RR.HH. y Contratos Laborales
+         en el formulario de Empresa
+    ========================================== -->
+
+    <record id="view_res_company_payroll_form" model="ir.ui.view">
+        <field name="name">res.company.hr.form</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='branches']" position="after">
+                <page string="Recursos Humanos" name="mype_hr">
+
+                    <group string="Gerencia / Representación Legal">
+                        <group>
+                            <field name="legal_representative_name"/>
+                            <field name="legal_representative_job"/>
+                            <field name="legal_representative_vat"/>
+                        </group>
+                        <group>
+                            <field name="company_signature_image" widget="image" class="oe_avatar" options="{'size': [120, 120]}"/>
+                        </group>
+                    </group>
+
+                    <group string="Código de empleado">
+                        <group>
+                            <field name="employee_code_prefix"/>
+                            <field name="employee_code_padding"/>
+                        </group>
+                        <group>
+                            <field name="employee_code_next"/>
+                        </group>
+                    </group>
+                    <p class="text-muted">
+                        El código de empleado se genera automáticamente al crear un
+                        empleado usando el prefijo y la cantidad de dígitos
+                        configurados.
+                    </p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

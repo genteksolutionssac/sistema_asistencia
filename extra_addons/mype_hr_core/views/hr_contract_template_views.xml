@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_mype_hr_contract_template_tree" model="ir.ui.view">
+        <field name="name">mype.hr.contract.template.tree</field>
+        <field name="model">mype.hr.contract.template</field>
+        <field name="arch" type="xml">
+            <list string="Plantillas de Contratos Word" decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="contract_type"/>
+                <field name="legal_modality_title"/>
+                <field name="file_name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="contract_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_mype_hr_contract_template_form" model="ir.ui.view">
+        <field name="name">mype.hr.contract.template.form</field>
+        <field name="model">mype.hr.contract.template</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla de Contrato Word (.docx)">
+                <header>
+                    <button name="action_download_base_template"
+                            string="Descargar Archivo Word (.docx)"
+                            type="object"
+                            icon="fa-download"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-file-text-o" type="action" name="%(mype_hr_core.action_mype_hr_contract)d" context="{'search_default_template_id': id}">
+                            <field name="contract_count" widget="statinfo" string="Contratos"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre de la Plantilla"/>
+                        <h1>
+                            <field name="name" placeholder="ej. Contrato por Inicio de Nueva Actividad - MYPE"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuración Legal">
+                            <field name="code" placeholder="ej. CONT-INICIO-ACT"/>
+                            <field name="contract_type"/>
+                            <field name="legal_modality_title" placeholder="ej. Inicio de Nueva Actividad"/>
+                            <field name="legal_base" placeholder="ej. artículo 57 del D.Leg. N° 728"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Archivo de Plantilla Word">
+                            <field name="file_template" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Causa Objetiva por Defecto" name="objective_cause">
+                            <field name="default_objective_cause" placeholder="Redacte la justificación legal y operativa que se cargará por defecto al seleccionar esta plantilla..."/>
+                        </page>
+                        <page string="Diccionario de Variables Soportadas" name="variables_help">
+                            <div class="alert alert-info" role="alert">
+                                <h5><strong>Variables que puedes usar en tu archivo Word (.docx):</strong></h5>
+                                <ul>
+                                    <li><strong>Empresa:</strong> <code>{{ company_name }}</code>, <code>{{ company_vat }}</code>, <code>{{ company_street }}</code>, <code>{{ company_rep_name }}</code>, <code>{{ company_rep_job }}</code>, <code>{{ company_rep_vat }}</code>, <code>{{ company_registry_entry }}</code>, <code>{{ company_remype }}</code>, <code>{{ company_activity_description }}</code></li>
+                                    <li><strong>Trabajador:</strong> <code>{{ employee_name }}</code>, <code>{{ employee_vat }}</code>, <code>{{ employee_street }}</code>, <code>{{ employee_treatment }}</code>, <code>{{ employee_party_label }}</code></li>
+                                    <li><strong>Puesto &amp; Remuneración:</strong> <code>{{ job_name }}</code>, <code>{{ wage_amount }}</code>, <code>{{ wage_in_words }}</code>, <code>{{ wage_frequency }}</code>, <code>{{ job_functions_bullets }}</code></li>
+                                    <li><strong>Vigencia &amp; Horario:</strong> <code>{{ duration_text }}</code>, <code>{{ date_start_text }}</code>, <code>{{ date_end_text }}</code>, <code>{{ trial_period_text }}</code>, <code>{{ weekly_hours_text }}</code>, <code>{{ schedule_details }}</code>, <code>{{ lunch_minutes }}</code>, <code>{{ work_modality }}</code></li>
+                                    <li><strong>Cierre &amp; Ciudad:</strong> <code>{{ signing_city }}</code>, <code>{{ signing_date_text }}</code>, <code>{{ labor_regime }}</code></li>
+                                </ul>
+                            </div>
+                            <field name="description" placeholder="Notas internas sobre esta plantilla..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_mype_hr_contract_template" model="ir.actions.act_window">
+        <field name="name">Plantillas de Contratos</field>
+        <field name="res_model">mype.hr.contract.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea una nueva plantilla de contrato Word (.docx)
+            </p>
+            <p>
+                Sube tus documentos Word con variables <code>{{ variable }}</code> para generar automáticamente contratos personalizados por empresa o puesto de trabajo.
+            </p>
+        </field>
+    </record>
+
+</odoo>

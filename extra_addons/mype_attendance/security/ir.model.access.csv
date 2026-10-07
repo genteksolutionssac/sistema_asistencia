@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+mype_attendance_user,mype.attendance.user,model_mype_attendance,mype_hr_core.group_mype_hr_user,1,0,0,0
+mype_attendance_manager,mype.attendance.manager,model_mype_attendance,mype_hr_core.group_mype_hr_manager,1,1,1,1
+hr_employee_device_user,hr.employee.device.user,model_hr_employee_device,mype_hr_core.group_mype_hr_user,1,0,0,0
+hr_employee_device_manager,hr.employee.device.manager,model_hr_employee_device,mype_hr_core.group_mype_hr_manager,1,1,1,1
+mype_attendance_report_wizard_user,mype.attendance.report.wizard.user,model_mype_attendance_report_wizard,mype_hr_core.group_mype_hr_user,1,1,1,1
+mype_attendance_report_wizard_manager,mype.attendance.report.wizard.manager,model_mype_attendance_report_wizard,mype_hr_core.group_mype_hr_manager,1,1,1,1

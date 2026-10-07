@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Lista -->
+    <record id="view_mype_hr_document_template_tree" model="ir.ui.view">
+        <field name="name">mype.hr.document.template.list</field>
+        <field name="model">mype.hr.document.template</field>
+        <field name="arch" type="xml">
+            <list string="Plantillas de Documentos Laborales">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="document_type"/>
+                <field name="requires_manager_signature" widget="boolean_toggle"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Formulario -->
+    <record id="view_mype_hr_document_template_form" model="ir.ui.view">
+        <field name="name">mype.hr.document.template.form</field>
+        <field name="model">mype.hr.document.template</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla de Documento Laboral">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="ej. Autorización para el Uso de Imagen y Voz"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuración de Formato">
+                            <field name="code"/>
+                            <field name="document_type"/>
+                            <field name="requires_manager_signature" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Reporte y Estado">
+                            <field name="report_action_id"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group string="Descripción">
+                        <field name="description" nolabel="1" placeholder="Indique el propósito legal y alcance de este formato..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_mype_hr_document_template" model="ir.actions.act_window">
+        <field name="name">Plantillas de Documentos</field>
+        <field name="res_model">mype.hr.document.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree una nueva plantilla oficial de documento laboral.
+            </p>
+        </field>
+    </record>
+
+</odoo>

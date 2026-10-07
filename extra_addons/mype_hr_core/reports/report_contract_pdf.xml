@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Paperformat para Contratos (Márgenes amplios de 38mm / ~4cm laterales) -->
+    <record id="paperformat_mype_contract" model="report.paperformat">
+        <field name="name">Contrato Laboral A4 (Márgenes Amplios)</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">25</field>
+        <field name="margin_left">38</field>
+        <field name="margin_right">38</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">15</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_mype_contract_pdf" model="ir.actions.report">
+        <field name="name">Contrato Laboral (PDF)</field>
+        <field name="model">mype.hr.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mype_hr_core.report_mype_contract_document</field>
+        <field name="report_file">mype_hr_core.report_mype_contract_document</field>
+        <field name="paperformat_id" ref="mype_hr_core.paperformat_mype_contract"/>
+        <field name="print_report_name">'Contrato_%s_%s' % (object.employee_id.name.replace(' ', '_'), object.legal_modality.replace(' ', '_'))</field>
+        <field name="binding_model_id" ref="model_mype_hr_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_mype_contract_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="ctx" t-value="o._get_contract_context()"/>
+                <!-- ENCABEZADO REAL -->
+                <div class="header" style="position: relative; height: 60px; margin-bottom: 0; padding: 0; border: none;">
+                    <div style="position: absolute; top: 0px; left: 0px; width: 60px; height: 60px; z-index: 5; pointer-events: none;">
+                        <t t-set="logo_data" t-value="o.company_id.company_contract_logo or o.company_id.logo"/>
+                        <img t-if="logo_data" 
+                            t-att-src="image_data_uri(logo_data)" 
+                            style="max-width: 60px; max-height: 60px; width: 60px; height: 60px; object-fit: contain; border: none; outline: none; box-shadow: none; opacity: 0.95; filter: drop-shadow(0 0 0.3px rgba(0,0,0,0.15));"/>
+                    </div>
+                </div>
+                <div class="article doc_contract" style="position: relative; font-family: 'Cambria', 'Georgia', serif; font-size: 10pt; line-height: 1.4; color: #111827; text-align: justify; padding: 0;">
+
+                    <!-- Title -->
+                    <div style="text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.3;">
+                        CONTRATO DE TRABAJO SUJETO A MODALIDAD<br/>
+                        <span style="font-size: 11pt; color: #1f2937;"><t t-esc="ctx['contract_modality_title']"/></span>
+                    </div>
+
+                    <!-- Intro -->
+                    <p style="margin-bottom: 10px; text-indent: 0;">
+                        Conste por el presente documento el Contrato de Trabajo Sujeto a Modalidad por <t t-esc="ctx['contract_modality_title']"/> que celebran de una parte <strong><t t-esc="ctx['company_name']"/></strong>, con R.U.C. N° <strong><t t-esc="ctx['company_vat']"/></strong>, domiciliada en <t t-esc="ctx['company_street']"/>, debidamente representada por su <t t-esc="ctx['company_rep_job']"/> <strong><t t-esc="ctx['company_rep_name']"/></strong>, con DNI N° <t t-esc="ctx['company_rep_vat']"/>; según poder inscrito en la partida registral N° <t t-esc="ctx['company_registry_entry']"/> de los Registros Públicos de Lima, con resolución REMYPE N° <t t-esc="ctx['company_remype']"/>, a quien en adelante se le denominará <strong>EL EMPLEADOR</strong>; y de la otra parte, <t t-esc="ctx['employee_treatment']"/> <strong><t t-esc="ctx['employee_name']"/></strong>, con DNI N° <strong><t t-esc="ctx['employee_vat']"/></strong>, con domicilio en <t t-esc="ctx['employee_street']"/>, a quien en lo sucesivo se le denominará <strong><t t-esc="ctx['employee_party_label']"/></strong>;
+                    </p>
+
+                    <p style="margin-bottom: 12px;">
+                        A quienes en adelante y de forma conjunta se les denominará como <strong>LAS PARTES</strong>; en los términos y condiciones siguientes:
+                    </p>
+
+                    <!-- Clauses -->
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">PRIMERA: ANTECEDENTES</p>
+                    <p style="margin-bottom: 6px;">
+                        <strong>EL EMPLEADOR</strong> es una persona jurídica válidamente constituida bajo las leyes de la República del Perú, dedicada de manera principal a <t t-esc="ctx['company_activity_description']"/>.
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        <strong><t t-esc="ctx['employee_party_label']"/></strong>, es <t t-esc="ctx['employee_qualified_text']"/> que cuenta con la instrucción, aptitud y experiencia laboral requerida para el desempeño de las labores de soporte que motivan el presente acuerdo, por lo que declara estar <t t-esc="ctx['employee_apt_text']"/> para asumir el puesto detallado en las cláusulas siguientes.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">SEGUNDA: OBJETO DEL CONTRATO Y CAUSA OBJETIVA</p>
+                    <p style="margin-bottom: 6px;">
+                        El presente contrato de trabajo se celebra al amparo del <t t-esc="ctx['contract_legal_base']"/>, bajo la modalidad de <strong><t t-esc="ctx['contract_modality_title']"/></strong>.
+                    </p>
+                    <p style="margin-bottom: 6px;">
+                        <t t-esc="ctx['contract_objective_cause']"/>
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        En consecuencia, <strong>EL EMPLEADOR</strong> contrata a plazo determinado los servicios de <strong><t t-esc="ctx['employee_party_label']"/></strong> para que desempeñe el puesto de <strong><t t-esc="ctx['job_name']"/></strong>, bajo los términos de temporalidad pactados en las cláusulas siguientes.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">TERCERA: FUNCIONES Y LABORES ASIGNADAS</p>
+                    <p style="margin-bottom: 4px;">
+                        En el cumplimiento de su puesto, <strong><t t-esc="ctx['employee_party_label']"/></strong> desempeñará las siguientes funciones específicas, las cuales tienen carácter enunciativo y no limitativo:
+                    </p>
+                    <div style="margin-bottom: 6px; padding-left: 20px; text-align: left; white-space: pre-line; line-height: 1.35; color: #1f2937;">
+                        <t t-esc="ctx['job_functions_bullets']"/>
+                    </div>
+                    <p style="margin-bottom: 10px;">
+                        Realizar cualquier otra labor de soporte conexa e inherente a su cargo que sea necesaria para el cumplimiento de los objetivos y actividades de <strong>EL EMPLEADOR</strong>.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">CUARTA: VIGENCIA DEL CONTRATO</p>
+                    <p style="margin-bottom: 6px;">
+                        El plazo de duración del presente contrato es de <strong><t t-esc="ctx['duration_text']"/></strong>, plazo que empezará a contarse desde el <strong><t t-esc="ctx['date_start_text']"/></strong> hasta el <strong><t t-esc="ctx['date_end_text']"/></strong>. Una vez vencido el mencionado plazo, el presente contrato concluirá indefectiblemente, salvo prórroga o renovación expresa de <strong>LAS PARTES</strong>.
+                    </p>
+                    <p style="margin-bottom: 6px;">
+                        <strong><t t-esc="ctx['employee_party_label']"/></strong> estará <t t-esc="ctx['employee_subject_text']"/> a <strong><t t-esc="ctx['trial_period_text']"/></strong> de período de prueba, de conformidad con lo establecido en los artículos 10° y 75° del D.S. 003-97-TR.
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        <strong>LAS PARTES</strong> podrán prorrogar o renovar el presente contrato hasta alcanzar el máximo legal permitido de conformidad con la legislación laboral aplicable.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">QUINTA: JORNADA, HORARIO Y MODALIDAD DE TRABAJO</p>
+                    <p style="margin-bottom: 6px;">
+                        <strong><t t-esc="ctx['employee_party_label']"/></strong> deberá cumplir una jornada máxima de <strong><t t-esc="ctx['weekly_hours_text']"/></strong>. Sus labores se desarrollarán en las oficinas administrativas, en modalidad <strong><t t-esc="ctx['work_modality']"/></strong> o en las zonas que <strong>EL EMPLEADOR</strong> designe. El horario de trabajo será el siguiente:
+                    </p>
+                    <p style="margin-bottom: 6px; font-weight: bold; padding-left: 20px; text-align: left; color: #1e293b;">
+                        <t t-esc="ctx['schedule_details']"/>
+                    </p>
+                    <p style="margin-bottom: 6px;">
+                        <strong>LAS PARTES</strong> estipulan que, dentro de la jornada de trabajo <strong><t t-esc="ctx['employee_party_label']"/></strong> gozará de un tiempo de refrigerio de <strong><t t-esc="ctx['lunch_minutes']"/></strong>, el cual no forma parte de la jornada laboral.
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        Toda labor efectuada fuera del horario establecido requerirá obligatoriamente de la autorización previa y escrita de <strong>EL EMPLEADOR</strong> para su validez y reconocimiento.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">SEXTA: REMUNERACIÓN Y BENEFICIOS</p>
+                    <p style="margin-bottom: 6px;">
+                        <strong><t t-esc="ctx['employee_party_label']"/></strong> percibirá una remuneración ascendente a <strong><t t-esc="ctx['wage_amount']"/> (<t t-esc="ctx['wage_in_words']"/>)</strong>, conviniéndose a pagar de periodicidad <t t-esc="ctx['wage_frequency']"/>, el último día de cada mes. Dicho monto está sujeto a las retenciones y aportaciones de ley correspondientes (AFP/ONP y Quinta Categoría).
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        Asimismo, <strong>EL EMPLEADOR</strong> otorgará los beneficios sociales que por ley le correspondan según el régimen laboral <strong><t t-esc="ctx['labor_regime']"/></strong> aplicable a la empresa.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">SETIMA: OBLIGACIONES DE LAS PARTES</p>
+                    <p style="margin-bottom: 4px;"><strong>7.1 OBLIGACIONES DE EL EMPLEADOR:</strong></p>
+                    <p style="margin-bottom: 4px; padding-left: 15px;">a) Cancelar puntualmente la remuneración acordada y los beneficios de ley.</p>
+                    <p style="margin-bottom: 4px; padding-left: 15px;">b) Proveer las herramientas de trabajo, equipos informáticos y accesos necesarios para el correcto desempeño de sus funciones.</p>
+                    <p style="margin-bottom: 6px; padding-left: 15px;">c) Garantizar un ambiente de trabajo seguro y cumplir con las normativas de Seguridad y Salud en el Trabajo vigentes.</p>
+
+                    <p style="margin-bottom: 4px;"><strong>7.2 OBLIGACIONES DE <t t-esc="ctx['employee_party_label']"/>:</strong></p>
+                    <p style="margin-bottom: 4px; padding-left: 15px;">a) Prestar sus servicios con lealtad, eficiencia, probidad y buena fe laboral.</p>
+                    <p style="margin-bottom: 4px; padding-left: 15px;">b) Cuidar y destinar los recursos informáticos y materiales de la empresa exclusivamente a fines laborales.</p>
+                    <p style="margin-bottom: 10px; padding-left: 15px;">c) Cumplir estrictamente el Reglamento Interno, lineamientos de confidencialidad y directivas de <strong>EL EMPLEADOR</strong>.</p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">OCTAVA: NATURALEZA DEL SERVICIO Y EXCLUSIVIDAD</p>
+                    <p style="margin-bottom: 10px;">
+                        Las labores desempeñadas corresponden de forma única y exclusiva a la relación de subordinación con <strong>EL EMPLEADOR</strong>, no generando ningún vínculo laboral directo ni solidaridad con clientes o aliados comerciales de la empresa.</p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">NOVENA: RESERVA Y CONFIDENCIALIDAD</p>
+                    <p style="margin-bottom: 10px;">
+                        <strong><t t-esc="ctx['employee_party_label']"/></strong> se obliga a mantener estricta reserva y absoluta confidencialidad respecto de toda la información contable, financiera, laboral, comercial y técnica de <strong>EL EMPLEADOR</strong> y sus clientes, subsistiendo esta obligación aún después de concluido el vínculo laboral.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">DÉCIMO: PROPIEDAD INTELECTUAL</p>
+                    <p style="margin-bottom: 10px;">
+                        Todos los derechos patrimoniales de propiedad intelectual, desarrollos, metodologías, reportes y obras creadas por <strong><t t-esc="ctx['employee_party_label']"/></strong> en el ejercicio de sus funciones corresponden de manera exclusiva a <strong>EL EMPLEADOR</strong>.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">UNDÉCIMO: TERMINACIÓN DEL CONTRATO Y PREAVISO</p>
+                    <p style="margin-bottom: 10px;">
+                        El contrato podrá resolverse por las causas justas previstas en la ley. En caso de renuncia voluntaria, <strong><t t-esc="ctx['employee_party_label']"/></strong> deberá cursar preaviso escrito con 30 días de anticipación, salvo exoneración facultativa de <strong>EL EMPLEADOR</strong>.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">DUODÉCIMO: DOMICILIO Y NOTIFICACIONES ELECTRÓNICAS</p>
+                    <p style="margin-bottom: 10px;">
+                        <strong>LAS PARTES</strong> ratifican los domicilios consignados en la introducción y autorizan expresamente las notificaciones mediante correo electrónico con pleno valor legal.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">DÉCIMO TERCERA: JURISDICCIÓN Y COMPETENCIA</p>
+                    <p style="margin-bottom: 10px;">
+                        Para resolver cualquier controversia, <strong>LAS PARTES</strong> se someten a la competencia de los jueces y tribunales de la ciudad de <t t-esc="ctx['signing_city']"/>.
+                    </p>
+
+                    <p style="font-weight: bold; margin-top: 10px; margin-bottom: 4px;">DISPOSICIONES FINALES</p>
+                    <p style="margin-bottom: 25px;">
+                        En señal de conformidad, <strong>LAS PARTES</strong> suscriben el presente documento en la ciudad de <t t-esc="ctx['signing_city']"/>, <t t-esc="ctx['signing_date_text']"/>, en dos (2) ejemplares de igual valor legal.
+                    </p>
+
+                    <!-- Signatures Block (Flujo continuo sin salto de página forzado) -->
+                    <div style="margin-top: 25px; page-break-inside: avoid;">
+                        <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 48%; vertical-align: bottom; padding: 0 10px;">
+                                    <div style="border-top: 1px solid #1f2937; padding-top: 6px;">
+                                        <strong>EL EMPLEADOR</strong><br/>
+                                        <span style="font-size: 8.5pt;"><t t-esc="ctx['company_name']"/></span><br/>
+                                        <span style="font-size: 8pt; color: #4b5563;">RUC: <t t-esc="ctx['company_vat']"/></span><br/>
+                                        <span style="font-size: 8pt; color: #4b5563;">Rep: <t t-esc="ctx['company_rep_name']"/></span><br/>
+                                        <span style="font-size: 8pt; color: #4b5563;"><t t-esc="ctx['company_rep_job']"/></span>
+                                    </div>
+                                </td>
+                                <td style="width: 4%;"></td>
+                                <td style="width: 48%; vertical-align: bottom; padding: 0 10px;">
+                                    <div style="border-top: 1px solid #1f2937; padding-top: 6px;">
+                                        <strong><t t-esc="ctx['employee_party_label']"/></strong><br/>
+                                        <span style="font-size: 8.5pt;"><t t-esc="ctx['employee_name']"/></span><br/>
+                                        <span style="font-size: 8pt; color: #4b5563;">DNI: <t t-esc="ctx['employee_vat']"/></span><br/>
+                                        <span style="font-size: 8pt; color: #4b5563;">Domicilio: <t t-esc="ctx['employee_street']"/></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Regla multi-compañía para lotes de documentos -->
+    <record id="rule_mype_hr_doc_batch_company" model="ir.rule">
+        <field name="name">Document Batch Multi-Company</field>
+        <field name="model_id" ref="model_mype_hr_document_batch"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Regla multi-compañía para asignaciones de documentos -->
+    <record id="rule_mype_hr_doc_assignment_company" model="ir.rule">
+        <field name="name">Document Assignment Multi-Company</field>
+        <field name="model_id" ref="model_mype_hr_document_assignment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Menú raíz de Organización / Personal
+    ========================================== -->
+
+    <menuitem
+        id="menu_mype_root"
+        name="Asistencia"
+        sequence="20"
+        web_icon="mype_hr_core,static/description/icon.png"/>
+
+    <!-- =========================================
+         Menú RR.HH.
+    ========================================== -->
+
+    <menuitem
+        id="menu_mype_hr"
+        name="Gestión"
+        parent="menu_mype_root"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_mype_hr_contract"
+        name="Contratos"
+        parent="menu_mype_hr"
+        sequence="10"
+        action="mype_hr_core.action_mype_hr_contract"
+        groups="mype_hr_core.group_mype_hr_user"
+        active="False"/>
+
+    <menuitem
+        id="menu_mype_hr_shift"
+        name="Horarios y Turnos"
+        parent="menu_mype_hr"
+        sequence="20"
+        action="mype_hr_core.action_mype_hr_shift"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <!-- =========================================
+         Menú Configuración
+    ========================================== -->
+
+    <menuitem
+        id="menu_mype_config"
+        name="Configuración"
+        parent="menu_mype_root"
+        sequence="90"
+        groups="mype_hr_core.group_mype_payroll_admin"
+        active="False"/>
+
+    <menuitem
+        id="menu_mype_config_contract_template"
+        name="Plantillas de Contratos"
+        parent="menu_mype_config"
+        sequence="10"
+        action="mype_hr_core.action_mype_hr_contract_template"
+        active="False"/>
+
+    <!-- =========================================
+         Limpieza de Menús en el Módulo de Empleados
+    ========================================== -->
+
+    <!-- 1. Ocultar Formación / Capacitaciones (Learning) -->
+    <record id="hr_skills.hr_skill_learning_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!-- 2. Ocultar Informes (Reporting) -->
+    <record id="hr.hr_menu_hr_reports" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!-- 3. Mover 'Ubicaciones de trabajo' directamente a Configuración -->
+    <record id="hr.menu_hr_work_location_tree" model="ir.ui.menu">
+        <field name="parent_id" ref="hr.menu_human_resources_configuration"/>
+        <field name="sequence">10</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- 4. Mover 'Puestos de trabajo' directamente a Configuración -->
+    <record id="hr.menu_view_hr_job" model="ir.ui.menu">
+        <field name="parent_id" ref="hr.menu_human_resources_configuration"/>
+        <field name="sequence">20</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- 5. Ocultar Ajustes de Empleados (se ve en Ajustes Generales de Odoo) -->
+    <record id="hr.hr_menu_configuration" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!-- 6. Ocultar contenedores y submenús innecesarios de Configuración -->
+    <record id="hr.menu_config_employee" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="hr_skills.menu_human_resources_configuration_resume" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="hr.menu_config_recruitment" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+</odoo>

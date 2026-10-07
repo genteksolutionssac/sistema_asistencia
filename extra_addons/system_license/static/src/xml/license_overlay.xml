@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="system_license.LicenseLockoutOverlay">
+        <div t-if="state.isBlocked" class="o_license_lockout_backdrop">
+            <div class="o_license_lockout_card">
+                <div class="o_license_lockout_icon">
+                    <i class="fa fa-lock"/>
+                </div>
+                <div class="o_license_lockout_title">
+                    Sistema Suspendido por Licencia
+                </div>
+                <div class="o_license_lockout_message">
+                    Estimado usuario, el periodo de suscripción de este sistema se encuentra vencido o suspendido por falta de pago. Las operaciones en el sistema han sido pausadas.
+                </div>
+                <div class="o_license_lockout_details">
+                    <div><strong>Cliente:</strong> <t t-esc="state.clientName or 'Empresa Registrada'"/></div>
+                    <div><strong>Vencimiento:</strong> <t t-esc="state.expirationDate or 'Expirado'"/></div>
+                    <div><strong>Diagnóstico:</strong> <t t-esc="state.message"/></div>
+                </div>
+                <div class="d-flex justify-content-center gap-2">
+                    <button class="o_license_lockout_btn" t-on-click="onRetryClick" t-att-disabled="state.loading">
+                        <i t-if="state.loading" class="fa fa-spinner fa-spin"/>
+                        <i t-else="" class="fa fa-refresh"/>
+                        <span>Verificar Pago Ahora</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

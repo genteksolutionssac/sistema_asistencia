@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Grupo base: Empleado RR.HH.
+    ========================================== -->
+
+    <record id="group_mype_hr_user" model="res.groups">
+        <field name="name">Empleado RR.HH.</field>
+    </record>
+
+    <!-- =========================================
+         Grupo: RR.HH. (crea/edita)
+    ========================================== -->
+
+    <record id="group_mype_hr_manager" model="res.groups">
+        <field name="name">Gestión RR.HH.</field>
+        <field name="implied_ids" eval="[(4, ref('mype_hr_core.group_mype_hr_user'))]"/>
+    </record>
+
+    <!-- =========================================
+         Grupo: Ver Planillas (solo lectura)
+    ========================================== -->
+
+    <record id="group_mype_payroll_viewer" model="res.groups">
+        <field name="name">Ver Planillas</field>
+        <field name="implied_ids" eval="[(4, ref('mype_hr_core.group_mype_hr_user'))]"/>
+    </record>
+
+    <!-- =========================================
+         Grupo: Gestionar Planillas (genera/edita)
+    ========================================== -->
+
+    <record id="group_mype_payroll_manager" model="res.groups">
+        <field name="name">Gestionar Planillas</field>
+        <field name="implied_ids" eval="[(4, ref('mype_hr_core.group_mype_payroll_viewer'))]"/>
+    </record>
+
+    <!-- =========================================
+         Grupo: Configuración (admin RR.HH.)
+    ========================================== -->
+
+    <record id="group_mype_payroll_admin" model="res.groups">
+        <field name="name">Configuración Planillas</field>
+        <field name="implied_ids" eval="[(4, ref('mype_hr_core.group_mype_hr_manager')), (4, ref('mype_hr_core.group_mype_payroll_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- =========================================
+         Reglas de multiempresa
+    ========================================== -->
+
+    <record id="rule_mype_hr_contract_company" model="ir.rule">
+        <field name="name">Contrato: Multiempresa</field>
+        <field name="model_id" ref="model_mype_hr_contract"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_mype_hr_shift_company" model="ir.rule">
+        <field name="name">Horario: Multiempresa</field>
+        <field name="model_id" ref="model_mype_hr_shift"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+
+</odoo>

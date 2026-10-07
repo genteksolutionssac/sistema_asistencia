@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =======================================================
+         ACCIONES DE VENTANA
+    ======================================================== -->
+    <record id="action_mype_news_announcement" model="ir.actions.act_window">
+        <field name="name">Novedades y Comunicados</field>
+        <field name="res_model">mype.news.announcement</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primer comunicado o novedad interna!
+            </p>
+            <p>
+                Publica aniversarios, feriados, cumpleaños y avisos corporativos para que los colaboradores los vean directamente en su app móvil.
+            </p>
+        </field>
+    </record>
+
+    <!-- =======================================================
+         VISTA LISTA (LIST)
+    ======================================================== -->
+    <record id="view_mype_news_announcement_list" model="ir.ui.view">
+        <field name="name">mype.news.announcement.list</field>
+        <field name="model">mype.news.announcement</field>
+        <field name="arch" type="xml">
+            <list string="Novedades y Comunicados"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'scheduled'"
+                  decoration-success="state == 'sent'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="is_pinned" widget="boolean" string="📌 Fijado"/>
+                <field name="name" string="Título"/>
+                <field name="category" widget="badge"/>
+                <field name="file_type"/>
+                <field name="target_type"/>
+                <field name="published_date" string="Fecha Publicación"/>
+                <field name="total_recipients" string="Destinatarios"/>
+                <field name="total_read" string="Leídos"/>
+                <field name="total_reactions" string="❤️ Reacciones" optional="show"/>
+                <field name="read_percent" widget="progressbar" string="% Lectura"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'scheduled'"
+                       decoration-success="state == 'sent'"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =======================================================
+         VISTA FORMULARIO (FORM)
+    ======================================================== -->
+    <record id="view_mype_news_announcement_form" model="ir.ui.view">
+        <field name="name">mype.news.announcement.form</field>
+        <field name="model">mype.news.announcement</field>
+        <field name="arch" type="xml">
+            <form string="Novedad / Comunicado">
+                <header>
+                    <button name="action_send_now"
+                            type="object"
+                            string="Enviar Ahora"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_send_all_now"
+                            type="object"
+                            string="Enviar a Todos Ahora"
+                            class="btn-secondary"
+                            invisible="state != 'draft'"
+                            confirm="¿Estás seguro de emitir este comunicado a TODOS los colaboradores activos de la empresa?"/>
+
+                    <button name="action_schedule"
+                            type="object"
+                            string="Confirmar Programación"
+                            class="btn-primary"
+                            invisible="state != 'draft' or schedule_type != 'scheduled'"/>
+
+                    <button name="action_resend_pending"
+                            type="object"
+                            string="Reenviar Alerta a Pendientes"
+                            class="btn-secondary"
+                            invisible="state != 'sent' or total_pending == 0"
+                            confirm="Se enviará una alerta a los colaboradores que aún no han leído este comunicado. ¿Deseas continuar?"/>
+
+                    <button name="action_cancel"
+                            type="object"
+                            string="Cancelar"
+                            invisible="state not in ('draft', 'scheduled')"/>
+
+                    <button name="action_draft"
+                            type="object"
+                            string="Restablecer a Borrador"
+                            invisible="state != 'cancelled'"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Prioritario 📌" bg_color="bg-warning" invisible="not is_pinned"/>
+
+                    <!-- Panel de Estadísticas cuando ya fue enviado -->
+                    <div class="alert alert-info d-flex align-items-center justify-content-between p-3 mb-3"
+                         role="alert"
+                         invisible="state != 'sent'">
+                        <div class="d-flex align-items-center">
+                            <span class="fs-4 me-3">📊</span>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Seguimiento de Entrega y Lectura</h6>
+                                <small class="text-muted">
+                                    Emitido el <field name="published_date" readonly="1" class="fw-semibold"/>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4 text-center">
+                            <div>
+                                <span class="d-block text-muted small">Destinatarios</span>
+                                <span class="fw-bold fs-5"><field name="total_recipients"/></span>
+                            </div>
+                            <div>
+                                <span class="d-block text-muted small">Leídos</span>
+                                <span class="fw-bold fs-5 text-success"><field name="total_read"/></span>
+                            </div>
+                            <div>
+                                <span class="d-block text-muted small">Pendientes</span>
+                                <span class="fw-bold fs-5 text-danger"><field name="total_pending"/></span>
+                            </div>
+                            <div>
+                                <span class="d-block text-muted small">Reacciones</span>
+                                <span class="fw-bold fs-5 text-primary"><field name="total_reactions"/></span>
+                                <small class="d-block text-muted" invisible="not reactions_summary_display">
+                                    <field name="reactions_summary_display"/>
+                                </small>
+                            </div>
+                            <div style="min-width: 110px;">
+                                <span class="d-block text-muted small">% Leído</span>
+                                <field name="read_percent" widget="progressbar"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="Título del Comunicado"/>
+                        <h1>
+                            <field name="name" placeholder="Ej: Aniversario de la Empresa, Feriado Puente..."/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Clasificación">
+                            <field name="category"/>
+                            <field name="is_pinned"/>
+                            <field name="file_type" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <group string="Audiencia y Segmentación">
+                            <field name="target_type"/>
+                            <field name="department_ids" widget="many2many_tags"
+                                   invisible="target_type != 'department'"
+                                   required="target_type == 'department'"/>
+                            <field name="employee_ids" widget="many2many_tags"
+                                   invisible="target_type != 'employee'"
+                                   required="target_type == 'employee'"/>
+                        </group>
+                    </group>
+
+                    <!-- Archivos condicionales -->
+                    <group string="Archivo Adjunto (Imagen o Documento)" invisible="file_type == 'none'">
+                        <group invisible="file_type != 'image'">
+                            <field name="image_cover" widget="image" class="oe_avatar" options="{'preview_image': 'image_cover', 'size': [200, 200]}"/>
+                            <field name="image_filename" invisible="1"/>
+                        </group>
+                        <group invisible="file_type != 'pdf'">
+                            <field name="pdf_file" filename="pdf_filename"/>
+                            <field name="pdf_filename" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Detalle / Mensaje (Opcional)">
+                        <field name="description" placeholder="Escribe aquí un mensaje adicional breve si lo deseas (opcional si la información ya está en la imagen o PDF)..." nolabel="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Programación de Envío">
+                            <group>
+                                <group>
+                                    <field name="schedule_type" widget="radio"/>
+                                    <field name="scheduled_date"
+                                           invisible="schedule_type != 'scheduled'"
+                                           required="schedule_type == 'scheduled'"/>
+                                </group>
+                                <group>
+                                    <field name="published_date"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Control de Lectura (Destinatarios)" invisible="state != 'sent'">
+                            <field name="recipient_ids" readonly="1">
+                                <list string="Destinatarios" decoration-success="is_read" decoration-warning="not is_read">
+                                    <field name="employee_id" string="Colaborador"/>
+                                    <field name="employee_code" string="Código"/>
+                                    <field name="department_id" string="Área / Departamento"/>
+                                    <field name="is_read" widget="boolean" string="¿Leído?"/>
+                                    <field name="read_date" string="Fecha y Hora de Lectura"/>
+                                    <field name="reaction_emoji" string="Reacción"/>
+                                    <field name="reaction_date" string="Fecha Reacción" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- =======================================================
+         VISTA BÚSQUEDA (SEARCH)
+    ======================================================== -->
+    <record id="view_mype_news_announcement_search" model="ir.ui.view">
+        <field name="name">mype.news.announcement.search</field>
+        <field name="model">mype.news.announcement</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Novedades">
+                <field name="name"/>
+                <field name="category"/>
+                <separator/>
+                <filter name="filter_pinned" string="📌 Fijados" domain="[('is_pinned', '=', True)]"/>
+                <separator/>
+                <filter name="filter_draft" string="Borrador" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_scheduled" string="Programados" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="filter_sent" string="Enviados" domain="[('state', '=', 'sent')]"/>
+                <group>
+                    <filter name="group_by_category" string="Categoría" domain="[]" context="{'group_by': 'category'}"/>
+                    <filter name="group_by_state" string="Estado" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_target" string="Audiencia" domain="[]" context="{'group_by': 'target_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

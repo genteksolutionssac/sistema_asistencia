@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menú Principal en la barra superior -->
+    <menuitem
+        id="menu_mype_documents_root"
+        name="Documentos RRHH"
+        parent="mype_hr_core.menu_mype_root"
+        sequence="26"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <!-- Submenús -->
+    <menuitem
+        id="menu_mype_doc_batch"
+        name="Emisiones Masivas"
+        parent="menu_mype_documents_root"
+        sequence="10"
+        action="action_mype_hr_document_batch"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <menuitem
+        id="menu_mype_doc_assignment"
+        name="Control de Documentos"
+        parent="menu_mype_documents_root"
+        sequence="20"
+        action="action_mype_hr_document_assignment"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <menuitem
+        id="menu_mype_doc_template"
+        name="Plantillas Oficiales"
+        parent="menu_mype_documents_root"
+        sequence="30"
+        action="action_mype_hr_document_template"
+        groups="mype_hr_core.group_mype_hr_manager"/>
+
+</odoo>

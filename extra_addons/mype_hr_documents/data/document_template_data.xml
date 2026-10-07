@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="template_auth_imagen_voz" model="mype.hr.document.template">
+        <field name="name">Autorización para el Uso de Imagen y Voz</field>
+        <field name="code">AUTH_IMAGEN_VOZ</field>
+        <field name="document_type">auth_image</field>
+        <field name="requires_manager_signature" eval="True"/>
+        <field name="report_action_id" ref="mype_hr_documents.action_report_authorization_image_pdf"/>
+        <field name="description">Consentimiento expreso para la captación, grabación y uso institucional de la imagen y voz del colaborador en actividades laborales.</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Tree View
+    ========================================== -->
+
+    <record id="view_mype_attendance_tree" model="ir.ui.view">
+        <field name="name">mype.attendance.tree</field>
+        <field name="model">mype.attendance</field>
+        <field name="arch" type="xml">
+            <list string="Registros de Asistencia" create="false" delete="false" decoration-danger="is_late == True">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="shift_id" optional="show"/>
+                <field name="modality" widget="badge" optional="show"/>
+                <field name="department_id" optional="show"/>
+                <field name="manager_id" optional="show"/>
+                <field name="scheduled_entry"/>
+                <field name="entry_time"/>
+                <field name="scheduled_exit"/>
+                <field name="exit_time"/>
+                <field name="worked_hours" widget="float_time"/>
+                <field name="expected_hours" widget="float_time"/>
+                <field name="is_late"/>
+                <field name="late_minutes" widget="float_time"/>
+                <field name="is_early_exit"/>
+                <field name="has_overtime"/>
+                <field name="state" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Form View
+    ========================================== -->
+
+    <record id="view_mype_attendance_form" model="ir.ui.view">
+        <field name="name">mype.attendance.form</field>
+        <field name="model">mype.attendance</field>
+        <field name="arch" type="xml">
+            <form string="Registro de Asistencia">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="employee_code"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                            <field name="date"/>
+                            <field name="company_id"/>
+                            <field name="is_working_day"/>
+                        </group>
+                        <group>
+                            <field name="contract_id"/>
+                            <field name="shift_id"/>
+                            <field name="expected_hours" widget="float_time"/>
+                            <field name="break_minutes"/>
+                            <field name="overtime_allowed"/>
+                        </group>
+                    </group>
+                    <separator string="Marcación"/>
+                    <group>
+                        <group>
+                            <field name="scheduled_entry"/>
+                            <field name="entry_time"/>
+                            <field name="scheduled_exit"/>
+                            <field name="exit_time"/>
+                            <field name="is_complete"/>
+                        </group>
+                        <group>
+                            <field name="worked_hours" widget="float_time"/>
+                            <field name="late_minutes" widget="float_time" invisible="not is_late"/>
+                            <field name="early_exit_minutes" widget="float_time" invisible="not is_early_exit"/>
+                            <field name="overtime_minutes" widget="float_time" invisible="not has_overtime"/>
+                        </group>
+                    </group>
+                    <separator string="Detalle App Móvil (GPS y Selfie)"/>
+                    <group>
+                        <group>
+                            <field name="modality"/>
+                            <field name="approval_state"/>
+                            <field name="origin_source"/>
+                        </group>
+                        <group>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                            <field name="google_maps_url" widget="url" text="Abrir en Google Maps"/>
+
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Search View
+    ========================================== -->
+
+    <record id="view_mype_attendance_search" model="ir.ui.view">
+        <field name="name">mype.attendance.search</field>
+        <field name="model">mype.attendance</field>
+        <field name="arch" type="xml">
+            <search string="Registros de Asistencia">
+                <field name="employee_id"/>
+                <field name="employee_code"/>
+                <field name="department_id"/>
+                <field name="manager_id"/>
+                <field name="date"/>
+                <field name="company_id"/>
+                <separator/>
+                <filter string="Con tardanza" name="late" domain="[('is_late','=',True)]"/>
+                <filter string="Con salida anticipada" name="early" domain="[('is_early_exit','=',True)]"/>
+                <filter string="Con horas extra" name="overtime" domain="[('has_overtime','=',True)]"/>
+                <filter string="Incompletas" name="incomplete" domain="[('is_complete','=',False)]"/>
+                <separator/>
+                <filter string="Fecha" name="filter_date" date="date"/>
+                <group>
+                    <filter string="Mes" name="group_month" domain="[]" context="{'group_by': 'date:month'}"/>
+                    <filter string="Año" name="group_year" domain="[]" context="{'group_by': 'date:year'}"/>
+                    <filter string="Colaborador" name="group_employee" domain="[]" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Área / Departamento" name="group_department" domain="[]" context="{'group_by': 'department_id'}"/>
+                    <filter string="Responsable a cargo" name="group_manager" domain="[]" context="{'group_by': 'manager_id'}"/>
+                    <filter string="Horario / Turno" name="group_shift" domain="[]" context="{'group_by': 'shift_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Graph View
+    ========================================== -->
+
+    <record id="view_mype_attendance_graph" model="ir.ui.view">
+        <field name="name">mype.attendance.graph</field>
+        <field name="model">mype.attendance</field>
+        <field name="arch" type="xml">
+            <graph string="Análisis de Asistencias" type="bar" sample="1">
+                <field name="employee_id"/>
+                <field name="late_minutes" type="measure"/>
+                <field name="worked_hours" type="measure"/>
+                <field name="early_exit_minutes" type="measure"/>
+                <field name="overtime_minutes" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Pivot View
+    ========================================== -->
+
+    <record id="view_mype_attendance_pivot" model="ir.ui.view">
+        <field name="name">mype.attendance.pivot</field>
+        <field name="model">mype.attendance</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Asistencias" sample="1">
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="worked_hours" type="measure"/>
+                <field name="late_minutes" type="measure"/>
+                <field name="early_exit_minutes" type="measure"/>
+                <field name="overtime_minutes" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Actions
+    ========================================== -->
+
+    <record id="action_mype_attendance" model="ir.actions.act_window">
+        <field name="name">Registros de Asistencia</field>
+        <field name="res_model">mype.attendance</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_mype_attendance_search"/>
+        <field name="context">{'group_by': []}</field>
+    </record>
+
+    <record id="action_mype_attendance_analysis" model="ir.actions.act_window">
+        <field name="name">Análisis de Asistencias</field>
+        <field name="res_model">mype.attendance</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="search_view_id" ref="view_mype_attendance_search"/>
+        <field name="context">{'search_default_filter_date': 1}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Tree View
+    ========================================== -->
+
+    <record id="view_mype_hr_contract_tree" model="ir.ui.view">
+        <field name="name">mype.hr.contract.tree</field>
+        <field name="model">mype.hr.contract</field>
+        <field name="arch" type="xml">
+            <list string="Contratos Laborales" decoration-info="state == 'draft'" decoration-success="state == 'open'" decoration-muted="state in ('closed', 'cancel')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="contract_type"/>
+                <field name="legal_modality"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="duration_text"/>
+                <field name="wage" widget="monetary"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'open'" decoration-danger="state == 'cancel'" decoration-muted="state == 'closed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Form View
+    ========================================== -->
+
+    <record id="view_mype_hr_contract_form" model="ir.ui.view">
+        <field name="name">mype.hr.contract.form</field>
+        <field name="model">mype.hr.contract</field>
+        <field name="arch" type="xml">
+            <form string="Contrato Laboral">
+                <header>
+                    <!-- Botón para pasar de Borrador a Vigente -->
+                    <button name="action_set_open"
+                            string="Aprobar"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'draft'"/>
+                    
+                    <!-- Botones de Generación de Documentos -->
+                    <button name="action_generate_contract_docx"
+                            string="Generar Contrato (.docx)"
+                            type="object"
+                            icon="fa-file-word-o"
+                            class="btn-primary"/>
+                    <button name="action_print_contract_pdf"
+                            string="Imprimir Contrato (PDF)"
+                            type="object"
+                            icon="fa-file-pdf-o"
+                            class="btn-secondary"/>
+
+                    <!-- Botones de Cambio de Estado -->
+                    <button name="action_set_closed"
+                            string="Finalizar Contrato"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'open'"/>
+                    <button name="action_set_draft"
+                            string="Volver a Borrador"
+                            type="object"
+                            class="btn-light"
+                            invisible="state not in ('closed', 'cancel')"/>
+                    <button name="action_set_cancel"
+                            string="Cancelar"
+                            type="object"
+                            class="btn-light text-danger"
+                            invisible="state not in ('draft', 'open')"/>
+
+                    <!-- Statusbar Clickable -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,closed" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Título del Contrato"/>
+                        <h1>
+                            <field name="name" placeholder="ej. Contrato Karla Cruz - Auxiliar Contable"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Datos del Colaborador">
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="job_id" options="{'no_create': True}"/>
+                            <field name="department_id" options="{'no_create': True}"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Vigencia y Modalidad">
+                            <field name="contract_type"/>
+                            <field name="template_id" options="{'no_create_edit': True}" placeholder="Seleccionar plantilla Word (.docx)..."/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="duration_text" readonly="1"/>
+                            <field name="cost_center"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Condiciones Legales &amp; Modalidad" name="legal_conditions">
+                            <group>
+                                <group string="Amparo Legal">
+                                    <field name="legal_modality" placeholder="ej. Inicio de Nueva Actividad"/>
+                                    <field name="legal_base" placeholder="ej. artículo 57 del D.Leg. N° 728"/>
+                                    <field name="trial_period_months"/>
+                                </group>
+                                <group string="Modalidad &amp; Suscripción">
+                                    <field name="work_modality"/>
+                                    <field name="signing_city"/>
+                                    <field name="signing_date"/>
+                                </group>
+                            </group>
+                            <group string="Causa Objetiva y Justificación Legal">
+                                <field name="objective_cause" nolabel="1" placeholder="Describa la causa objetiva temporal o justificación que ampara la contratación sujeta a modalidad..."/>
+                            </group>
+                        </page>
+
+                        <page string="Remuneración &amp; Beneficios" name="remuneration">
+                            <group>
+                                <group string="Retribución Salarial">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="wage" widget="monetary"/>
+                                    <field name="wage_in_words" readonly="1"/>
+                                    <field name="wage_type"/>
+                                </group>
+                                <group string="Beneficios">
+                                    <field name="has_family_allowance"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Jornada &amp; Horario" name="schedule">
+                            <group>
+                                <group>
+                                    <field name="schedule_id" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Funciones del Cargo" name="job_functions">
+                            <div class="alert alert-info border mb-2" role="alert">
+                                <strong>💡 Viñetas y Alineación Automática:</strong> Puede redactar las funciones línea por línea. El generador de contratos Word y PDF aplicará automáticamente las viñetas (<strong>•</strong>), sangría y alineación a la izquierda. Si deja este campo vacío, tomará las funciones del puesto.
+                            </div>
+                            <field name="job_functions_custom" placeholder="• Gestionar el archivo documentario y facturación mensual&#10;• Registrar compras y ventas en el sistema contable&#10;• Conciliar cuentas bancarias y reportes de tesorería&#10;• Elaborar declaraciones mensuales para la gerencia"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Search View
+    ========================================== -->
+
+    <record id="view_mype_hr_contract_search" model="ir.ui.view">
+        <field name="name">mype.hr.contract.search</field>
+        <field name="model">mype.hr.contract</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Contratos">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="contract_type"/>
+                <field name="template_id"/>
+                <field name="state"/>
+                <separator/>
+                <filter string="Vigentes" name="open" domain="[('state','=','open')]"/>
+                <filter string="Borradores" name="draft" domain="[('state','=','draft')]"/>
+                <group>
+                    <filter string="Colaborador" name="group_employee" domain="[]" context="{'group_by':'employee_id'}"/>
+                    <filter string="Puesto" name="group_job" domain="[]" context="{'group_by':'job_id'}"/>
+                    <filter string="Estado" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Plantilla" name="group_template" domain="[]" context="{'group_by':'template_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Action
+    ========================================== -->
+
+    <record id="action_mype_hr_contract" model="ir.actions.act_window">
+        <field name="name">Contratos Laborales</field>
+        <field name="res_model">mype.hr.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mype_hr_contract_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea un nuevo contrato laboral
+            </p>
+            <p>
+                Gestiona los contratos de tus colaboradores, genera documentos Word personalizados (.docx) y emite contratos PDF oficiales con 1 solo clic.
+            </p>
+        </field>
+    </record>
+
+</odoo>

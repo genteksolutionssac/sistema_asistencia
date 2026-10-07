@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Menú Asistencia
+    ========================================== -->
+
+    <menuitem
+        id="menu_mype_attendance"
+        name="Asistencia"
+        parent="mype_hr_core.menu_mype_root"
+        sequence="10"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <menuitem
+        id="menu_mype_attendance_records"
+        name="Registros de Asistencia"
+        parent="menu_mype_attendance"
+        sequence="10"
+        action="mype_attendance.action_mype_attendance"/>
+
+    <menuitem
+        id="menu_mype_device"
+        name="Dispositivos Vinculados"
+        parent="menu_mype_attendance"
+        sequence="20"
+        action="mype_attendance.action_hr_employee_device"
+        groups="mype_hr_core.group_mype_hr_manager"/>
+
+    <!-- =========================================
+         Menú Informes / Reportes (Al costado de Gestión)
+    ========================================== -->
+
+    <menuitem
+        id="menu_mype_reports"
+        name="Informes"
+        parent="mype_hr_core.menu_mype_root"
+        sequence="30"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <menuitem
+        id="menu_mype_attendance_analysis"
+        name="Análisis Gráfico"
+        parent="menu_mype_reports"
+        sequence="10"
+        action="mype_attendance.action_mype_attendance_analysis"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+    <menuitem
+        id="menu_mype_attendance_report"
+        name="Reporte Mensual en Excel"
+        parent="menu_mype_reports"
+        sequence="20"
+        action="mype_attendance.action_mype_attendance_report_wizard"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+</odoo>

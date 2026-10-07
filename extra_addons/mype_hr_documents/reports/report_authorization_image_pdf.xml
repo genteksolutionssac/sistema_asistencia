@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_report_authorization_image_pdf" model="ir.actions.report">
+        <field name="name">Autorización de Uso de Imagen y Voz</field>
+        <field name="model">mype.hr.document.assignment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mype_hr_documents.report_authorization_image_document</field>
+        <field name="report_file">mype_hr_documents.report_authorization_image_document</field>
+        <field name="paperformat_id" ref="mype_hr_documents.paperformat_mype_document_a4"/>
+        <field name="print_report_name">'Autorizacion_Imagen_%s' % (object.employee_id.name.replace(' ', '_'))</field>
+        <field name="binding_model_id" ref="model_mype_hr_document_assignment"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_authorization_image_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="ctx" t-value="o._get_document_context()"/>
+                <div class="article doc_authorization" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.45; color: #1f2937; text-align: justify; padding: 0 10px;">
+
+                    <!-- Encabezado de Empresa -->
+                    <div style="border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 11pt; font-weight: bold; color: #1e3a8a; text-transform: uppercase;">
+                                <t t-esc="ctx['company_name']"/>
+                            </span>
+                            <t t-if="ctx['company_vat']">
+                                <span style="font-size: 9pt; color: #4b5563; margin-left: 10px;">
+                                    RUC: <t t-esc="ctx['company_vat']"/>
+                                </span>
+                            </t>
+                        </div>
+                        <div style="font-size: 8.5pt; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Recursos Humanos &amp; Gestión de Personal
+                        </div>
+                    </div>
+
+                    <!-- Título del Documento -->
+                    <div style="text-align: center; font-weight: bold; font-size: 13pt; color: #111827; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        AUTORIZACIÓN PARA EL USO DE IMAGEN Y VOZ
+                    </div>
+
+                    <!-- Introducción -->
+                    <p style="margin-bottom: 12px; font-size: 10pt;">
+                        Yo, <strong style="color: #111827; text-decoration: underline;"><t t-esc="ctx['employee_name']"/></strong>, identificado(a) con DNI N.° <strong style="color: #111827; text-decoration: underline;"><t t-esc="ctx['employee_dni']"/></strong>, en mi condición de colaborador(a) de la empresa <strong>"<t t-esc="ctx['company_name']"/>"</strong> y con RUC: <strong><t t-esc="ctx['company_vat']"/></strong>, manifiesto lo siguiente:
+                    </p>
+
+                    <!-- Cláusula 1 -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #1e3a8a;">1. AUTORIZACIÓN</strong><br/>
+                        <span>Por medio del presente documento, <strong>AUTORIZO de manera expresa, libre, previa e informada</strong> a la empresa para captar, grabar, reproducir y utilizar mi imagen, fotografía y voz, obtenidas durante actividades relacionadas con mi vínculo laboral.</span><br/>
+                        <span>Esta autorización comprende fotografías, videos, grabaciones de voz y material audiovisual en el que participe.</span>
+                    </div>
+
+                    <!-- Cláusula 2 -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #1e3a8a;">2. FINALIDAD DEL USO</strong><br/>
+                        <span>La empresa podrá utilizar dicho material para:</span>
+                        <ul style="margin-top: 4px; margin-bottom: 4px; padding-left: 22px;">
+                            <li>Comunicaciones internas.</li>
+                            <li>Capacitaciones y actividades de integración.</li>
+                            <li>Presentaciones institucionales.</li>
+                            <li>Página web y canales digitales de la empresa.</li>
+                            <li>Redes sociales oficiales.</li>
+                            <li>Campañas y material institucional o publicitario.</li>
+                            <li>Contenido relacionado con las actividades, cultura, servicios e identidad de la empresa.</li>
+                        </ul>
+                        <span>El uso deberá estar relacionado con las actividades y comunicaciones de la empresa y no deberá afectar mi honor, reputación o dignidad.</span>
+                    </div>
+
+                    <!-- Cláusula 3 -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #1e3a8a;">3. SIN PAGO O COMPENSACIÓN ADICIONAL</strong><br/>
+                        <span>Declaro expresamente que el uso de mi imagen y voz, conforme a la presente autorización, no generará ningún pago, remuneración, bono, regalía, comisión ni compensación económica adicional a favor del colaborador.</span><br/>
+                        <span>Esta autorización no modifica ni reemplaza las condiciones económicas establecidas en mi relación laboral.</span>
+                    </div>
+
+                    <!-- Cláusula 4 -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #1e3a8a;">4. EDICIÓN Y ADAPTACIÓN DEL MATERIAL</strong><br/>
+                        <span>Autorizo a la empresa a realizar las modificaciones técnicas necesarias sobre fotografías, videos o grabaciones, tales como edición, recorte, duración, formato o adaptación para diferentes medios, siempre que se mantenga la finalidad señalada en el presente documento y no se afecte mi dignidad o reputación.</span>
+                    </div>
+
+                    <!-- Cláusula 5 -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #1e3a8a;">5. VIGENCIA</strong><br/>
+                        <span>La presente autorización tendrá vigencia desde la fecha de su aceptación hasta:</span>
+                        <ul style="margin-top: 4px; margin-bottom: 4px; padding-left: 22px;">
+                            <li>La finalización de mi relación laboral.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Cláusula 6 -->
+                    <div style="margin-bottom: 14px;">
+                        <strong style="color: #1e3a8a;">6. DECLARACIÓN</strong><br/>
+                        <span>Declaro que he leído y comprendido el contenido de esta autorización y que otorgo mi consentimiento de manera libre, expresa e informada para el uso de mi imagen y voz bajo las condiciones señaladas anteriormente.</span>
+                    </div>
+
+                    <!-- Datos y Fecha -->
+                    <div style="margin-bottom: 18px; font-size: 9.5pt; color: #374151;">
+                        <strong>Lugar y fecha:</strong> <span style="text-decoration: underline;"><t t-esc="ctx['date_text']"/></span><br/>
+                        <strong>Nombre completo:</strong> <span style="text-decoration: underline;"><t t-esc="ctx['employee_name']"/></span><br/>
+                        <strong>DNI:</strong> <span style="text-decoration: underline;"><t t-esc="ctx['employee_dni']"/></span>
+                    </div>
+
+                    <!-- Firmas Cuadros -->
+                    <div style="margin-top: 25px; display: table; width: 100%;">
+                        <div style="display: table-row;">
+                            
+                            <!-- Firma Empleador / Gerencia -->
+                            <div style="display: table-cell; width: 48%; text-align: center; vertical-align: bottom; padding-right: 15px;">
+                                <div style="min-height: 70px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px;">
+                                    <t t-if="ctx['company_signature']">
+                                        <img t-att-src="image_data_uri(ctx['company_signature'])" style="max-height: 65px; max-width: 170px; object-fit: contain;"/>
+                                    </t>
+                                </div>
+                                <div style="border-top: 1.5px solid #374151; padding-top: 5px; font-size: 9pt;">
+                                    <strong style="color: #111827;"><t t-esc="ctx['company_rep_name']"/></strong><br/>
+                                    <span style="color: #4b5563;"><t t-esc="ctx['company_rep_job']"/></span><br/>
+                                    <t t-if="ctx['company_rep_vat']">
+                                        <span style="color: #6b7280; font-size: 8.5pt;">DNI: <t t-esc="ctx['company_rep_vat']"/></span><br/>
+                                    </t>
+                                    <span style="font-weight: bold; color: #1e3a8a; font-size: 8.5pt;"><t t-esc="ctx['company_name']"/></span>
+                                </div>
+                            </div>
+
+                            <!-- Espacio separador -->
+                            <div style="display: table-cell; width: 4%;"></div>
+
+                            <!-- Firma Colaborador -->
+                            <div style="display: table-cell; width: 48%; text-align: center; vertical-align: bottom; padding-left: 15px;">
+                                <div style="min-height: 70px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 4px;">
+                                    <t t-if="ctx['is_signed'] and ctx['employee_signature']">
+                                        <img t-att-src="image_data_uri(ctx['employee_signature'])" style="max-height: 65px; max-width: 170px; object-fit: contain;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="padding: 10px; border: 1px dashed #9ca3af; border-radius: 4px; color: #9ca3af; font-size: 8.5pt; font-style: italic;">
+                                            (Pendiente de firma en el app móvil)
+                                        </div>
+                                    </t>
+                                </div>
+                                <div style="border-top: 1.5px solid #374151; padding-top: 5px; font-size: 9pt;">
+                                    <strong style="color: #111827;"><t t-esc="ctx['employee_name']"/></strong><br/>
+                                    <span style="color: #4b5563;">DNI: <t t-esc="ctx['employee_dni']"/></span><br/>
+                                    <span style="color: #6b7280; font-size: 8.5pt;">Cargo: <t t-esc="ctx['employee_job']"/></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Caja de Trazabilidad y Evidencia Legal (si está firmado) -->
+                    <t t-if="ctx['is_signed']">
+                        <div style="margin-top: 30px; padding: 6px 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 7pt; color: #64748b; line-height: 1.3;">
+                            <strong>🔒 CONSTANCIA DE FIRMA ELECTRÓNICA:</strong> 
+                            Firmado digitalmente conforme a la Ley N° 27269 por <strong style="color: #334155;"><t t-esc="ctx['employee_name']"/></strong> (DNI: <t t-esc="ctx['employee_dni']"/>) el <strong><t t-esc="ctx['signed_at_text']"/></strong> (UTC-5). 
+                            <t t-if="ctx['client_ip']"> | IP: <t t-esc="ctx['client_ip']"/></t>
+                            <t t-if="ctx['audit_hash']"> | Hash SHA-256: <span style="font-family: monospace;"><t t-esc="ctx['audit_hash'][:36]"/>...</span></t>
+                        </div>
+                    </t>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

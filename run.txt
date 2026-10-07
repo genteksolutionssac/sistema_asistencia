@@ -1,0 +1,3 @@
+cd C:\Users\USUARIO\Desktop\odoo-19\odoo-19.0\odoo-19.0
+env\Scripts\activate
+python odoo-bin -c o19.conf

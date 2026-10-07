@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mype_hr_contract_user,mype.hr.contract.user,model_mype_hr_contract,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_mype_hr_contract_manager,mype.hr.contract.manager,model_mype_hr_contract,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_mype_hr_contract_template_user,mype.hr.contract.template.user,model_mype_hr_contract_template,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_mype_hr_contract_template_manager,mype.hr.contract.template.manager,model_mype_hr_contract_template,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_mype_hr_shift_user,mype.hr.shift.user,model_mype_hr_shift,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_mype_hr_shift_manager,mype.hr.shift.manager,model_mype_hr_shift,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_mype_hr_shift_line_user,mype.hr.shift.line.user,model_mype_hr_shift_line,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_mype_hr_shift_line_manager,mype.hr.shift.line.manager,model_mype_hr_shift_line,mype_hr_core.group_mype_hr_manager,1,1,1,1

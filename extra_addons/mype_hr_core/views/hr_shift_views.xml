@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Tree View
+    ========================================== -->
+
+    <record id="view_mype_hr_shift_tree" model="ir.ui.view">
+        <field name="name">mype.hr.shift.tree</field>
+        <field name="model">mype.hr.shift</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="entry_tolerance"/>
+                <field name="exit_tolerance"/>
+                <field name="break_minutes"/>
+                <field name="allow_overtime"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Form View
+    ========================================== -->
+
+    <record id="view_mype_hr_shift_form" model="ir.ui.view">
+        <field name="name">mype.hr.shift.form</field>
+        <field name="model">mype.hr.shift</field>
+        <field name="arch" type="xml">
+            <form string="Horario/Turno">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="entry_tolerance"/>
+                            <field name="exit_tolerance"/>
+                            <field name="break_minutes"/>
+                            <field name="allow_overtime"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Jornada">
+                            <field name="line_ids">
+                                <list>
+                                    <field name="day_of_week"/>
+                                    <field name="is_working_day"/>
+                                    <field name="entry_time"/>
+                                    <field name="exit_time"/>
+                                    <field name="expected_hours"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="day_of_week"/>
+                                            <field name="is_working_day"/>
+                                        </group>
+                                        <group>
+                                            <field name="entry_time"/>
+                                            <field name="exit_time"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Search View
+    ========================================== -->
+
+    <record id="view_mype_hr_shift_search" model="ir.ui.view">
+        <field name="name">mype.hr.shift.search</field>
+        <field name="model">mype.hr.shift</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Activos" name="active" domain="[('active','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Action
+    ========================================== -->
+
+    <record id="action_mype_hr_shift" model="ir.actions.act_window">
+        <field name="name">Horarios y Turnos</field>
+        <field name="res_model">mype.hr.shift</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mype_hr_shift_search"/>
+    </record>
+
+</odoo>

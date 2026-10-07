@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================================
+         Form View del Asistente de Reportes
+    ========================================== -->
+
+    <record id="view_mype_attendance_report_wizard_form" model="ir.ui.view">
+        <field name="name">mype.attendance.report.wizard.form</field>
+        <field name="model">mype.attendance.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte Mensual de Asistencia">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Filtros de Asistencia:</strong> Seleccione el periodo (Mes y Año) y elija si desea ver o exportar los registros de toda la empresa, por un área en específico, o por la persona a cargo (responsable de área y sus colaboradores).
+                    </div>
+                    <group>
+                        <group string="Periodo">
+                            <field name="year"/>
+                            <field name="month"/>
+                        </group>
+                        <group string="Criterio de Filtro">
+                            <field name="filter_type" widget="radio"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <group string="Detalle del Filtro" invisible="filter_type == 'all'">
+                        <field name="department_id" invisible="filter_type != 'by_department'" required="filter_type == 'by_department'"/>
+                        <field name="manager_id" invisible="filter_type != 'by_manager'" required="filter_type == 'by_manager'"/>
+                        <field name="include_manager" invisible="filter_type != 'by_manager'"/>
+                        <field name="employee_ids" widget="many2many_tags" invisible="filter_type != 'by_employee'" required="filter_type == 'by_employee'"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_view_attendances" string="Ver Asistencias en Pantalla" type="object" class="btn-primary" icon="fa-search"/>
+                    <button name="action_export_excel" string="Descargar Excel (.xlsx)" type="object" class="btn-success" icon="fa-file-excel-o"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================================
+         Action para el Wizard
+    ========================================== -->
+
+    <record id="action_mype_attendance_report_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte Mensual de Asistencias</field>
+        <field name="res_model">mype.attendance.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

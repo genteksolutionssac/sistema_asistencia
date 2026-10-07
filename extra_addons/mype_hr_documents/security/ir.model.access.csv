@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_doc_template_user,mype.hr.document.template.user,model_mype_hr_document_template,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_doc_template_manager,mype.hr.document.template.manager,model_mype_hr_document_template,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_doc_batch_user,mype.hr.document.batch.user,model_mype_hr_document_batch,mype_hr_core.group_mype_hr_user,1,0,0,0
+access_doc_batch_manager,mype.hr.document.batch.manager,model_mype_hr_document_batch,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_doc_assignment_user,mype.hr.document.assignment.user,model_mype_hr_document_assignment,mype_hr_core.group_mype_hr_user,1,1,1,0
+access_doc_assignment_manager,mype.hr.document.assignment.manager,model_mype_hr_document_assignment,mype_hr_core.group_mype_hr_manager,1,1,1,1

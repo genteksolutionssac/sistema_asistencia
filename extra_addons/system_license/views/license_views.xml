@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_system_license_manager_form" model="ir.ui.view">
+        <field name="name">system.license.manager.form</field>
+        <field name="model">system.license.manager</field>
+        <field name="arch" type="xml">
+            <form string="Gestión de Licencia">
+                <header>
+                    <button name="action_check_status" string="Verificar Estado Ahora" type="object" class="btn-primary" icon="fa-refresh"/>
+                    <field name="status" widget="statusbar" statusbar_visible="activo,vencido,suspendido"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuración de Conexión Hostinger">
+                            <field name="endpoint_url"/>
+                            <field name="token" password="True"/>
+                        </group>
+                        <group string="Estado Actual">
+                            <field name="is_active" widget="boolean_toggle"/>
+                            <field name="client_name"/>
+                            <field name="expiration_date"/>
+                            <field name="last_checked"/>
+                        </group>
+                    </group>
+                    <group string="Diagnóstico y Mensaje">
+                        <field name="last_message" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_system_license_manager" model="ir.actions.act_window">
+        <field name="name">Licencia del Sistema</field>
+        <field name="res_model">system.license.manager</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure y verifique la licencia centralizada con Hostinger.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_system_license_root"
+              name="Licencia"
+              parent="base.menu_administration"
+              sequence="100"
+              action="action_system_license_manager"
+              groups="base.group_system"/>
+</odoo>

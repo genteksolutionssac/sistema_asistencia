@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Lista de Emisiones -->
+    <record id="view_mype_hr_document_batch_tree" model="ir.ui.view">
+        <field name="name">mype.hr.document.batch.list</field>
+        <field name="model">mype.hr.document.batch</field>
+        <field name="arch" type="xml">
+            <list string="Emisiones Masivas de Documentos" decoration-success="state == 'done'" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="date_issued"/>
+                <field name="target_type"/>
+                <field name="total_assigned"/>
+                <field name="total_signed"/>
+                <field name="total_pending"/>
+                <field name="progress_percent" widget="progressbar"/>
+                <field name="state" widget="badge" 
+                    decoration-info="state == 'draft'" 
+                    decoration-warning="state == 'sent'" 
+                    decoration-success="state == 'done'" 
+                    decoration-danger="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Formulario de Emisión -->
+    <record id="view_mype_hr_document_batch_form" model="ir.ui.view">
+        <field name="name">mype.hr.document.batch.form</field>
+        <field name="model">mype.hr.document.batch</field>
+        <field name="arch" type="xml">
+            <form string="Emisión de Documentos">
+                <header>
+                    <button name="action_send_to_employees" 
+                        string="Enviar a Colaboradores" 
+                        type="object" 
+                        class="btn-primary" 
+                        invisible="state != 'draft'"/>
+
+                    <button name="action_remind_pending" 
+                        string="Recordar a Pendientes" 
+                        type="object" 
+                        class="btn-secondary" 
+                        invisible="state != 'sent' or total_pending == 0"/>
+
+                    <button name="action_cancel" 
+                        string="Cancelar Emisión" 
+                        type="object" 
+                        invisible="state in ('done', 'cancel')"/>
+
+                    <button name="action_reset_draft" 
+                        string="Restablecer a Borrador" 
+                        type="object" 
+                        invisible="state != 'cancel'"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-users" type="action" name="%(action_mype_hr_document_assignment)d" context="{'search_default_batch_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value"><field name="total_assigned"/></span>
+                                <span class="o_stat_text">Asignados</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-check-circle" type="action" name="%(action_mype_hr_document_assignment)d" context="{'search_default_batch_id': id, 'search_default_signed': 1}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value text-success"><field name="total_signed"/></span>
+                                <span class="o_stat_text text-success">Firmados</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-clock-o" type="action" name="%(action_mype_hr_document_assignment)d" context="{'search_default_batch_id': id, 'search_default_pending': 1}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value text-warning"><field name="total_pending"/></span>
+                                <span class="o_stat_text text-warning">Pendientes</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="ej. Autorización para el Uso de Imagen y Voz - 2026"/>
+                        </h1>
+                    </div>
+
+                    <div class="mb-3" invisible="state == 'draft'">
+                        <label for="progress_percent" string="Progreso de Firmas"/>
+                        <field name="progress_percent" widget="progressbar"/>
+                    </div>
+
+                    <group>
+                        <group string="Detalles de Emisión">
+                            <field name="template_id" readonly="state != 'draft'"/>
+                            <field name="date_issued" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Destinatarios">
+                            <field name="target_type" widget="radio" readonly="state != 'draft'"/>
+                            <field name="department_ids" widget="many2many_tags" 
+                                invisible="target_type != 'department'" 
+                                required="target_type == 'department'" 
+                                readonly="state != 'draft'"/>
+                            <field name="employee_ids" widget="many2many_tags" 
+                                invisible="target_type != 'employee'" 
+                                required="target_type == 'employee'" 
+                                readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Seguimiento de Colaboradores" name="assignments">
+                            <field name="assignment_ids" readonly="1">
+                                <list string="Colaboradores Asignados" default_order="state desc, id desc">
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <field name="state" widget="badge" 
+                                        decoration-warning="state == 'pending'" 
+                                        decoration-success="state == 'signed'"/>
+                                    <field name="date_signed_local" string="Fecha de Firma"/>
+                                    <button name="action_download_pdf" 
+                                        string="Ver PDF" 
+                                        type="object" 
+                                        icon="fa-file-pdf-o" 
+                                        class="btn-link"
+                                        invisible="state != 'signed'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de Emisiones -->
+    <record id="action_mype_hr_document_batch" model="ir.actions.act_window">
+        <field name="name">Emisiones Masivas</field>
+        <field name="res_model">mype.hr.document.batch</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree una nueva emisión de documentos para sus colaboradores.
+            </p>
+            <p>
+                Podrá emitir a toda la empresa, por áreas o colaboradores específicos, y seguir en tiempo real quiénes han firmado.
+            </p>
+        </field>
+    </record>
+
+</odoo>

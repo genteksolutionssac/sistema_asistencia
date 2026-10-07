@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =========================================
+         Menú Novedades en Asistencia / Personal
+    ========================================== -->
+    <menuitem
+        id="menu_mype_news_root"
+        name="Novedades"
+        parent="mype_hr_core.menu_mype_root"
+        sequence="25"
+        action="action_mype_news_announcement"
+        groups="mype_hr_core.group_mype_hr_user"/>
+
+</odoo>

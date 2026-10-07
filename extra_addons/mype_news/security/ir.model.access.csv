@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mype_news_announcement_user,mype.news.announcement.user,model_mype_news_announcement,base.group_user,1,0,0,0
+access_mype_news_announcement_hr_user,mype.news.announcement.hr.user,model_mype_news_announcement,mype_hr_core.group_mype_hr_user,1,1,1,1
+access_mype_news_announcement_hr_manager,mype.news.announcement.hr.manager,model_mype_news_announcement,mype_hr_core.group_mype_hr_manager,1,1,1,1
+access_mype_news_recipient_user,mype.news.recipient.user,model_mype_news_recipient,base.group_user,1,1,0,0
+access_mype_news_recipient_hr_user,mype.news.recipient.hr.user,model_mype_news_recipient,mype_hr_core.group_mype_hr_user,1,1,1,1
+access_mype_news_recipient_hr_manager,mype.news.recipient.hr.manager,model_mype_news_recipient,mype_hr_core.group_mype_hr_manager,1,1,1,1
