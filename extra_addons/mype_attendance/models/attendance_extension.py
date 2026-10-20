@@ -49,6 +49,11 @@ class HrEmployeeAttendanceExt(models.Model):
         string="Longitud específica",
         digits=(10, 7),
     )
+    can_view_dashboard = fields.Boolean(
+        string="Activar Dashboard de Control",
+        default=False,
+        help="Permite a este colaborador visualizar el Dashboard de Control en la App Móvil.",
+    )
     use_company_location = fields.Boolean(
         string="Usar ubicación de compañía",
         default=True,

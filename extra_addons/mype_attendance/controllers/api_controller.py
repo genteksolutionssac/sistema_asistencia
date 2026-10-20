@@ -2,7 +2,8 @@
 import base64
 import math
 import secrets
-from datetime import datetime
+from datetime import datetime, date
+import calendar
 import pytz
 from werkzeug.exceptions import HTTPException
 from odoo import http, fields
@@ -216,6 +217,11 @@ class MypeAttendanceMobileApi(http.Controller):
             else (employee.company_id.default_shift_id.name if hasattr(employee.company_id, "default_shift_id") and employee.company_id.default_shift_id else "")
         )
 
+        is_admin = False
+        if user:
+            is_admin = bool(user._is_admin() or user.has_group("base.group_system") or user.has_group("base.group_erp_manager"))
+        can_view_dash = bool(is_admin or is_dept_manager or (hasattr(employee, "can_view_dashboard") and employee.can_view_dashboard))
+
         return request.make_json_response({
             "success": True,
             "profile": {
@@ -226,6 +232,8 @@ class MypeAttendanceMobileApi(http.Controller):
                 "job": employee.job_id.name if employee.job_id else "",
                 "company": comp.name,
                 "is_department_manager": is_dept_manager,
+                "is_admin": is_admin,
+                "can_view_dashboard": can_view_dash,
                 "role": "manager" if is_dept_manager else "employee",
                 "allowed_modality": today_modality,
                 "shift_name": effective_shift,
@@ -883,6 +891,324 @@ class MypeAttendanceMobileApi(http.Controller):
                 ("is_active", "in", ("True", "true", "1")),
             ]).write({"fcm_token": fcm_token, "last_seen": fields.Datetime.now()})
         return request.make_json_response({"success": True})
+
+
+    # =========================================================================
+    # DASHBOARD DE CONTROL (SUPERVISOR / ADMINISTRADOR)
+    # =========================================================================
+
+    @http.route("/api/attendance/dashboard/daily", type="http", auth="none", csrf=False, methods=["GET", "OPTIONS"], cors="*")
+    def api_dashboard_daily(self):
+        if request.httprequest.method == "OPTIONS":
+            return request.make_response("", headers=[
+                ("Access-Control-Allow-Origin", "*"),
+                ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+                ("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization"),
+            ])
+
+        employee = self._authenticate_token()
+        if not employee:
+            return request.make_json_response({"success": False, "error": "unauthorized"}, status=401)
+
+        comp = employee.company_id
+        tz_name = comp.partner_id.tz or "America/Lima"
+        local_tz = pytz.timezone(tz_name)
+        now_local = pytz.utc.localize(datetime.now()).astimezone(local_tz)
+
+        date_str = request.params.get("date")
+        if date_str:
+            try:
+                target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                target_date = now_local.date()
+        else:
+            target_date = now_local.date()
+
+        dept_filter = request.params.get("department")
+
+        # Empleados activos de la compañía
+        emp_domain = [
+            ("company_id", "=", comp.id),
+            ("active", "=", True),
+        ]
+        if dept_filter and dept_filter != "TODOS":
+            emp_domain.append(("department_id.name", "=", dept_filter))
+
+        employees = request.env["hr.employee"].sudo().search(emp_domain, order="department_id, name")
+
+        # Asistencias del día en mype.attendance
+        att_records = request.env["mype.attendance"].sudo().search([
+            ("company_id", "=", comp.id),
+            ("date", "=", target_date),
+            ("employee_id", "in", employees.ids),
+        ])
+        att_by_emp = {a.employee_id.id: a for a in att_records}
+
+        # Departamentos activos
+        all_comp_emps = request.env["hr.employee"].sudo().search([
+            ("company_id", "=", comp.id),
+            ("active", "=", True),
+        ], order="department_id, name")
+
+        dept_names = []
+        for e in all_comp_emps:
+            d_name = e.department_id.name if e.department_id else ""
+            if d_name and d_name not in dept_names:
+                dept_names.append(d_name)
+
+        records = []
+        present_count = 0
+        late_count = 0
+        absent_count = 0
+
+        for emp in employees:
+            att = att_by_emp.get(emp.id)
+
+            is_leader = False
+            if emp.user_id:
+                is_leader = bool(
+                    request.env["hr.department"].sudo().search_count([
+                        "|",
+                        ("manager_id.user_id", "=", emp.user_id.id),
+                        ("manager_id", "=", emp.id),
+                    ]) > 0 or
+                    request.env["hr.employee"].sudo().search_count([("parent_id", "=", emp.id)]) > 0
+                )
+            else:
+                is_leader = bool(
+                    request.env["hr.department"].sudo().search_count([("manager_id", "=", emp.id)]) > 0 or
+                    request.env["hr.employee"].sudo().search_count([("parent_id", "=", emp.id)]) > 0
+                )
+
+            entry_str = None
+            exit_str = None
+            late_min = 0
+
+            if att and att.entry_time:
+                entry_str = self._local_time_str(att.entry_time, emp)
+                exit_str = self._local_time_str(att.exit_time, emp) if att.exit_time else None
+                if att.is_late:
+                    status = "late"
+                    late_min = int(att.late_minutes or 0)
+                    late_count += 1
+                else:
+                    status = "present"
+                    present_count += 1
+            else:
+                status = "absent"
+                absent_count += 1
+
+            records.append({
+                "employee": {
+                    "id": emp.id,
+                    "name": emp.name,
+                    "code": emp.employee_code or "",
+                    "job": emp.job_id.name if emp.job_id else "",
+                    "department": emp.department_id.name if emp.department_id else "General",
+                    "is_leader": is_leader,
+                },
+                "status": status,
+                "entry_time": entry_str,
+                "exit_time": exit_str,
+                "late_minutes": late_min,
+                "modality": emp.get_today_modality(target_date) if hasattr(emp, "get_today_modality") else "presencial",
+            })
+
+        return request.make_json_response({
+            "success": True,
+            "data": {
+                "date": str(target_date),
+                "total_expected": len(employees),
+                "present_count": present_count,
+                "late_count": late_count,
+                "absent_count": absent_count,
+                "departments": dept_names,
+                "records": records,
+            }
+        })
+
+    @http.route("/api/attendance/dashboard/history", type="http", auth="none", csrf=False, methods=["GET", "OPTIONS"], cors="*")
+    def api_dashboard_history(self):
+        if request.httprequest.method == "OPTIONS":
+            return request.make_response("", headers=[
+                ("Access-Control-Allow-Origin", "*"),
+                ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+                ("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization"),
+            ])
+
+        employee = self._authenticate_token()
+        if not employee:
+            return request.make_json_response({"success": False, "error": "unauthorized"}, status=401)
+
+        comp = employee.company_id
+        tz_name = comp.partner_id.tz or "America/Lima"
+        local_tz = pytz.timezone(tz_name)
+        now_local = pytz.utc.localize(datetime.now()).astimezone(local_tz)
+
+        try:
+            year = int(request.params.get("year", now_local.year))
+            month = int(request.params.get("month", now_local.month))
+        except (ValueError, TypeError):
+            year = now_local.year
+            month = now_local.month
+
+        emp_id_param = request.params.get("employee_id")
+        selected_emp_id = int(emp_id_param) if emp_id_param and emp_id_param.isdigit() else None
+        dept_filter = request.params.get("department")
+
+        emp_domain = [
+            ("company_id", "=", comp.id),
+            ("active", "=", True),
+        ]
+        if dept_filter and dept_filter != "TODOS":
+            emp_domain.append(("department_id.name", "=", dept_filter))
+
+        employees = request.env["hr.employee"].sudo().search(emp_domain, order="department_id, name")
+        all_comp_emps = request.env["hr.employee"].sudo().search([
+            ("company_id", "=", comp.id),
+            ("active", "=", True),
+        ], order="department_id, name")
+
+        dept_names = []
+        for e in all_comp_emps:
+            d_name = e.department_id.name if e.department_id else ""
+            if d_name and d_name not in dept_names:
+                dept_names.append(d_name)
+
+        num_days = calendar.monthrange(year, month)[1]
+        start_date = date(year, month, 1)
+        end_date = date(year, month, num_days)
+
+        att_domain = [
+            ("company_id", "=", comp.id),
+            ("date", ">=", start_date),
+            ("date", "<=", end_date),
+            ("employee_id", "in", employees.ids),
+        ]
+        monthly_atts = request.env["mype.attendance"].sudo().search(att_domain)
+
+        att_map = {}
+        for a in monthly_atts:
+            att_map[(str(a.date), a.employee_id.id)] = a
+
+        serialized_employees = []
+        for e in all_comp_emps:
+            is_ldr = False
+            if e.user_id:
+                is_ldr = bool(
+                    request.env["hr.department"].sudo().search_count([
+                        "|",
+                        ("manager_id.user_id", "=", e.user_id.id),
+                        ("manager_id", "=", e.id),
+                    ]) > 0 or
+                    request.env["hr.employee"].sudo().search_count([("parent_id", "=", e.id)]) > 0
+                )
+            else:
+                is_ldr = bool(
+                    request.env["hr.department"].sudo().search_count([("manager_id", "=", e.id)]) > 0 or
+                    request.env["hr.employee"].sudo().search_count([("parent_id", "=", e.id)]) > 0
+                )
+            serialized_employees.append({
+                "id": e.id,
+                "name": e.name,
+                "code": e.employee_code or "",
+                "job": e.job_id.name if e.job_id else "",
+                "department": e.department_id.name if e.department_id else "General",
+                "is_leader": is_ldr,
+            })
+
+        day_records = {}
+        for day in range(1, num_days + 1):
+            curr_date = date(year, month, day)
+            date_key = f"{year:04d}-{month:02d}-{day:02d}"
+
+            if curr_date > now_local.date():
+                continue
+
+            staff_records = []
+            present_total = 0
+            late_total = 0
+            absent_total = 0
+
+            for emp in employees:
+                att = att_map.get((date_key, emp.id))
+                e_entry = None
+                e_exit = None
+                e_late_min = 0
+
+                if att and att.entry_time:
+                    e_entry = self._local_time_str(att.entry_time, emp)
+                    e_exit = self._local_time_str(att.exit_time, emp) if att.exit_time else None
+                    if att.is_late:
+                        e_status = "late"
+                        e_late_min = int(att.late_minutes or 0)
+                        late_total += 1
+                    else:
+                        e_status = "present"
+                        present_total += 1
+                else:
+                    e_status = "absent"
+                    absent_total += 1
+
+                staff_records.append({
+                    "employee": {
+                        "id": emp.id,
+                        "name": emp.name,
+                        "code": emp.employee_code or "",
+                        "job": emp.job_id.name if emp.job_id else "",
+                        "department": emp.department_id.name if emp.department_id else "General",
+                        "is_leader": False,
+                    },
+                    "status": e_status,
+                    "entry_time": e_entry,
+                    "exit_time": e_exit,
+                    "late_minutes": e_late_min,
+                })
+
+            total_staff = len(employees)
+            rate = ((present_total + late_total) / total_staff * 100.0) if total_staff > 0 else 0.0
+
+            ind_status = "absent"
+            ind_entry = None
+            ind_exit = None
+            ind_late_min = 0
+
+            if selected_emp_id:
+                single_att = att_map.get((date_key, selected_emp_id))
+                if single_att and single_att.entry_time:
+                    ind_entry = self._local_time_str(single_att.entry_time, employee)
+                    ind_exit = self._local_time_str(single_att.exit_time, employee) if single_att.exit_time else None
+                    if single_att.is_late:
+                        ind_status = "late"
+                        ind_late_min = int(single_att.late_minutes or 0)
+                    else:
+                        ind_status = "present"
+                else:
+                    ind_status = "absent"
+
+            day_records[date_key] = {
+                "individual_status": ind_status,
+                "entry_time": ind_entry,
+                "exit_time": ind_exit,
+                "late_minutes": ind_late_min,
+                "total_staff": total_staff,
+                "present_total": present_total,
+                "late_total": late_total,
+                "absent_total": absent_total,
+                "overall_rate": round(rate, 1),
+                "staff_records": staff_records,
+            }
+
+        return request.make_json_response({
+            "success": True,
+            "data": {
+                "year": year,
+                "month": month,
+                "employees": serialized_employees,
+                "departments": dept_names,
+                "day_records": day_records,
+            }
+        })
 
     def _serialize_permit(self, inc):
         return {

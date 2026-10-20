@@ -49,6 +49,7 @@
                 <page string="Asistencia móvil y Horario" name="mype_attendance">
                     <group string="Identificación del Colaborador">
                         <field name="employee_code"/>
+                        <field name="can_view_dashboard" widget="boolean_toggle"/>
                     </group>
                     <group string="Horario / Turno de Asistencia">
                         <field name="use_company_shift" widget="boolean_toggle"/>
